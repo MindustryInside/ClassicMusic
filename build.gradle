@@ -13,18 +13,20 @@ repositories {
 ext {
     def json = new JsonSlurper()
     def libs = "$rootDir/build/libs"
+    def modfile = file("${sourceSets.main.resources.srcDirs.last()}/mod.json")
 
-    mod = json.parseText(file("src/main/resources/mod.json").text)
-    minMindustryVersion = mod['minGameVersion']
+    mod = json.parseText(modfile.text)
+    modName = mod['name']
+    modMindustryVersion = mod['minGameVersion']
     modVersion = mod['version']
 
-    artifactBaseName = name + (!modVersion.isEmpty() ? "-$modVersion" : "")
+    artifactBaseName = modName + (!modVersion.isEmpty() ? "-$modVersion" : "")
 
     jarPath = "$libs/${artifactBaseName}-desktop.jar"
     dexPath = "$libs/${artifactBaseName}-android.jar"
 
     versions = [:]
-    versions.mindustry = 'v' + minMindustryVersion
+    versions.mindustry = 'v' + modMindustryVersion
     versions.jabel = '0.3.0'
 }
 
@@ -35,9 +37,39 @@ dependencies {
     annotationProcessor "com.github.bsideup.jabel:jabel-javac-plugin:$versions.jabel"
 }
 
+task desktop(type: Jar) {
+    archiveBaseName.set "$artifactBaseName-desktop"
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+task android(type: Exec, dependsOn: desktop) {
+    def command = [
+            'd8', jarPath,
+            '--min-api', '28',
+            '--output', dexPath
+    ]
+
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine("cmd", "/c", *command)
+    } else {
+        commandLine(*command)
+    }
+}
+
+task dist(type: Jar, dependsOn: android) {
+    archiveBaseName.set artifactBaseName
+
+    from zipTree(jarPath), zipTree(dexPath)
+}
+
 tasks.withType(JavaCompile) {
     options.compilerArgs = [
-            "--release", "8",
+            '--release', '8',
             '--enable-preview',
     ]
 
@@ -48,37 +80,4 @@ tasks.withType(JavaCompile) {
             it != '--enable-preview'
         }
     }
-}
-
-jar {
-    archiveBaseName.set "$artifactBaseName-desktop"
-
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
-
-task android(type: Exec) {
-    def command = [
-        'd8', jarPath,
-        '--min-api', '19',
-        '--output', dexPath
-    ]
-
-    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
-        commandLine("cmd", "/c", *command)
-    } else {
-        commandLine(*command)
-    }
-}
-
-task dist(type: Jar) {
-    dependsOn 'jar'
-    dependsOn 'android'
-
-    archiveBaseName.set artifactBaseName
-
-    from zipTree(jarPath), zipTree(dexPath)
 }
