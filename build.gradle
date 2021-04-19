@@ -49,9 +49,9 @@ task desktop(type: Jar) {
 
 task android(type: Exec, dependsOn: desktop) {
     def command = [
-            'd8', jarPath,
-            '--min-api', '28',
-            '--output', dexPath
+        'd8', jarPath,
+        '--min-api', '28',
+        '--output', dexPath
     ]
 
     if (System.getProperty('os.name').toLowerCase().contains('windows')) {
@@ -69,8 +69,8 @@ task dist(type: Jar, dependsOn: android) {
 
 tasks.withType(JavaCompile) {
     options.compilerArgs = [
-            '--release', '8',
-            '--enable-preview',
+        '--release', '8',
+        '--enable-preview',
     ]
 
     options.compilerArgs << '-Xplugin:jabel'
