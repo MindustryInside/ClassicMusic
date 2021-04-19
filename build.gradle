@@ -1,0 +1,84 @@
+import groovy.json.*
+
+apply plugin: 'java'
+
+sourceCompatibility = 14
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+}
+
+ext {
+    def json = new JsonSlurper()
+    def libs = "$rootDir/build/libs"
+
+    mod = json.parseText(file("src/main/resources/mod.json").text)
+    minMindustryVersion = mod['minGameVersion']
+    modVersion = mod['version']
+
+    artifactBaseName = name + (!modVersion.isEmpty() ? "-$modVersion" : "")
+
+    jarPath = "$libs/${artifactBaseName}-desktop.jar"
+    dexPath = "$libs/${artifactBaseName}-android.jar"
+
+    versions = [:]
+    versions.mindustry = 'v' + minMindustryVersion
+    versions.jabel = '0.3.0'
+}
+
+dependencies {
+    compileOnly "com.github.Anuken.Arc:arc-core:$versions.mindustry"
+    compileOnly "com.github.Anuken.Mindustry:core:$versions.mindustry"
+
+    annotationProcessor "com.github.bsideup.jabel:jabel-javac-plugin:$versions.jabel"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+            "--release", "8",
+            '--enable-preview',
+    ]
+
+    options.compilerArgs << '-Xplugin:jabel'
+
+    doFirst {
+        options.compilerArgs = options.compilerArgs.findAll {
+            it != '--enable-preview'
+        }
+    }
+}
+
+jar {
+    archiveBaseName.set "$artifactBaseName-desktop"
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+task android(type: Exec) {
+    def command = [
+        'd8', jarPath,
+        '--min-api', '19',
+        '--output', dexPath
+    ]
+
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine("cmd", "/c", *command)
+    } else {
+        commandLine(*command)
+    }
+}
+
+task dist(type: Jar) {
+    dependsOn 'jar'
+    dependsOn 'android'
+
+    archiveBaseName.set artifactBaseName
+
+    from zipTree(jarPath), zipTree(dexPath)
+}
