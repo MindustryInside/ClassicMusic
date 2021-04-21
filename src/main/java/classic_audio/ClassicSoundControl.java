@@ -59,6 +59,10 @@ public class ClassicSoundControl extends SoundControl {
             }
         }
 
+        if (current != null ){
+            current.setVolume(fade * Core.settings.getInt("musicvol") / 100f);
+        }
+
         if (state.isMenu()) {
             silenced = false;
             if (current == null || !current.isPlaying()) {
