@@ -3,7 +3,7 @@
     "displayName": "Mindustry Classic Music",
     "description": "A mod to return the music to 3.5.",
     "author": "Summet, A Drop A Day (music)",
-    "main": "classic_audio.Launcher",
+    "main": "classicmusic.Launcher",
     "hidden": true,
     "java": true,
     "version": "1.0",
