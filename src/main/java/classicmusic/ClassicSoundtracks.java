@@ -1,4 +1,4 @@
-package classic_audio;
+package classicmusic;
 
 import arc.*;
 import arc.audio.*;

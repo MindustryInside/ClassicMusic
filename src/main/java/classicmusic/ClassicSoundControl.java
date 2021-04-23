@@ -1,4 +1,4 @@
-package classic_audio;
+package classicmusic;
 
 import arc.*;
 import arc.audio.*;
@@ -9,7 +9,7 @@ import mindustry.audio.*;
 import mindustry.game.*;
 
 import static mindustry.Vars.*;
-import static classic_audio.ClassicSoundtracks.*;
+import static classicmusic.ClassicSoundtracks.*;
 
 public class ClassicSoundControl extends SoundControl {
     private Seq<Music> classicSoundtracks;

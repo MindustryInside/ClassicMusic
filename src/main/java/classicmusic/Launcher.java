@@ -1,4 +1,4 @@
-package classic_audio;
+package classicmusic;
 
 import mindustry.*;
 import mindustry.audio.*;
