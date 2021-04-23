@@ -13,7 +13,7 @@ repositories {
 ext {
     def json = new JsonSlurper()
     def libs = "$rootDir/build/libs"
-    def modfile = file("${sourceSets.main.resources.srcDirs.last()}/mod.json")
+    def modfile = file('mod.json')
 
     mod = json.parseText(modfile.text)
     modName = mod['name']
@@ -44,6 +44,10 @@ task desktop(type: Jar) {
         configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
+    }
+
+    from(rootDir) {
+        include 'mod.json'
     }
 
     with jar
