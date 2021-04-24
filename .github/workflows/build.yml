@@ -18,8 +18,14 @@ jobs:
           java-version: 14
       - name: Set up Android SDK Tools
         uses: android-actions/setup-android@v2.0.1
+        run: |
+          sdkmanager "build-tools;29.0.3"
+          echo "${ANDROID_HOME}/build-tools/29.0.3" >> $GITHUB_PATH
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Build with Gradle
         run: |
           chmod +x gradlew
