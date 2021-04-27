@@ -2,36 +2,20 @@ package classicmusic;
 
 import arc.*;
 import arc.audio.*;
-import arc.files.*;
 import arc.math.*;
 import arc.struct.*;
 import mindustry.audio.*;
-import mindustry.game.*;
 
 import static mindustry.Vars.*;
 import static classicmusic.ClassicSoundtracks.*;
 
 public class ClassicSoundControl extends SoundControl {
-    private Seq<Music> classicSoundtracks;
+    private final Seq<Music> classicSoundtracks = Seq.with(
+        asFarAsItGets, fairyDust, hotTub, theShortestPath, weJustStarted, whileTrue
+    );
 
     public ClassicSoundControl() {
-        Events.on(EventType.ClientLoadEvent.class, e -> reload());
         setupFilters();
-    }
-
-    @Override
-    protected void reload() {
-        current = null;
-        fade = 0f;
-
-        classicSoundtracks = Seq.with(asFarAsItGets, fairyDust, hotTub, theShortestPath, weJustStarted, whileTrue);
-
-        for(var sound : Core.assets.getAll(Sound.class, new Seq<>())){
-            var file = Fi.get(Core.assets.getAssetFileName(sound));
-            if(file.parent().name().equals("ui")){
-                sound.setBus(uiBus);
-            }
-        }
     }
 
     @Override
@@ -59,7 +43,7 @@ public class ClassicSoundControl extends SoundControl {
             }
         }
 
-        if (current != null ){
+        if (current != null) {
             current.setVolume(fade * Core.settings.getInt("musicvol") / 100f);
         }
 

@@ -1,29 +1,24 @@
 package classicmusic;
 
 import arc.*;
-import arc.func.*;
 import mindustry.*;
 import mindustry.audio.*;
 import mindustry.mod.*;
 
 @SuppressWarnings("unused")
 public class Launcher extends Mod {
-    private boolean enabled = Core.settings.getBool("classicmusic", true);
-    private SoundControl original = new SoundControl(), classic = new ClassicSoundControl();
-    private Boolc changed = (e) -> setSoundControl(e ? classic : original);
-
-    public Launcher() {
-        changed.get(enabled);
-    }
+    private final boolean enabled = Core.settings.getBool("classicmusic", true);
 
     @Override
     public void init() {
         ClassicSoundtracks.load();
-        Vars.ui.settings.sound.checkPref("classicmusic", enabled, changed);
+        Vars.ui.settings.sound.checkPref("classicmusic", enabled, this::setSoundControl);
+
+        setSoundControl(enabled);
     }
 
-    private void setSoundControl(SoundControl control) {
+    private void setSoundControl(boolean classic) {
         Vars.control.sound.stop();
-        Vars.control.sound = control;
+        Vars.control.sound = classic ? new ClassicSoundControl() : new SoundControl();
     }
 }
