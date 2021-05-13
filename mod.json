@@ -6,7 +6,7 @@
     "main": "classicmusic.Launcher",
     "hidden": true,
     "java": true,
-    "version": "1.4",
+    "version": "1.5",
     "minGameVersion": 126.2,
     "repo": "MindustryInside/ClassicMusic"
 }
